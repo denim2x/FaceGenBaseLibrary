@@ -35,6 +35,32 @@
 #undef max                          // These are defined in windows.h and interfere with
 #undef min                          // the standard library since macros don't respect namespaces.
 
+#include "resource.h"
+#include <string>
+
+#ifndef UNICODE  
+typedef std::string String;
+#else
+typedef std::wstring String;
+#endif
+
+String _LoadString(int id, LPCTSTR type) {
+  auto src = FindResource(NULL, MAKEINTRESOURCE(id), type);
+  if (!src)
+    return NULL;
+
+  auto handle = LoadResource(NULL, src);
+  if (!handle)
+    return NULL;
+
+  auto data = (TCHAR*)LockResource(handle);
+  auto size = SizeofResource(NULL, src);
+  return String(data, size);
+}
+
+inline String LoadHLSL(int id) {
+  return _LoadString(id, L"HLSL")
+}
 #endif
 
 // */
